@@ -3,8 +3,8 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button, Card, Input } from 'react-native-elements';
 import ValidationComponent from 'react-native-form-validator';
 import Icon from 'react-native-vector-icons/Feather';
-import NavigationService from '../../services/NavigationService';
-import UserService from '../../services/UserService';
+import NavigationService from '../../core/services/NavigationService';
+import UserService from '../../core/services/UserService';
 
 export class RegisterForm extends ValidationComponent {
 
