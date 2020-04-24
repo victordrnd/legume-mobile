@@ -1,34 +1,33 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React from 'react';
-import { View, StatusBar, ActivityIndicator, Alert } from 'react-native';
+import { StatusBar, View } from 'react-native';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { Transition } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
 import { createAppContainer } from 'react-navigation';
 import createAnimatedSwitchNavigator from 'react-navigation-animated-switch';
+import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import OfflineNotice from './src/components/OfflineNotice';
+import NavigationService from './src/core/services/NavigationService';
+import Service from './src/core/services/Service';
+import UserService from './src/core/services/UserService';
 import { AuthLoadingScreen } from './src/screens/AuthLoadingScreen';
+import { CommandeScreen } from './src/screens/CommandeScreen';
+import { CommandesScreen } from './src/screens/CommandesScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
-import NavigationService from './src/services/NavigationService';
-import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
-import Service from './src/services/Service';
-import UserService from './src/services/UserService';
 import IntroScreen from './src/screens/IntroScreen';
-import AsyncStorage from '@react-native-community/async-storage';
 import { LoginScreen } from './src/screens/LoginScreen';
-import { Overlay, Text } from 'react-native-elements';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 export default class App extends React.Component {
 
 
 
   async componentDidMount() {
-    await Analytics.setEnabled(true);
-    await AsyncStorage.getItem('@token').then(async (token) => {
-      UserService.tokenSubject.next(token);
-      Service.token = token;
-      await UserService.populate();
-    });
+    let token = await AsyncStorage.getItem('@token');
+    UserService.tokenSubject.next(token);
+    Service.token = token;
+    await UserService.populate();
   }
 
 
@@ -56,8 +55,8 @@ const bottomTabNavigator = createMaterialBottomTabNavigator(
         )
       }
     },
-    Stock: {
-      screen: HomeScreen,
+    Bookings: {
+      screen: CommandesScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
           <View style={{ backgroundColor: tintColor, borderRadius: 10, padding: 7, width: 40, marginTop: -7 }}>
@@ -66,8 +65,8 @@ const bottomTabNavigator = createMaterialBottomTabNavigator(
         )
       }
     },
-    Historique: {
-      screen: HomeScreen,
+    Booking: {
+      screen: CommandeScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
           <View style={{ backgroundColor: tintColor, borderRadius: 10, padding: 7, width: 40, marginTop: -7 }}>
@@ -91,21 +90,20 @@ const bottomTabNavigator = createMaterialBottomTabNavigator(
 
 
 
-
 const theme = {
   ...DefaultTheme,
   roundness: 2,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#222a5b',
-    accent: '#f1c40f',
+    primary: '#8FE9B3',
+    accent: '#C40FFF',
     background: '#f1f3f6'
   },
 };
 
 const AuthenticationNavigator = createStackNavigator({
   Login: LoginScreen,
-  Register : RegisterScreen
+  Register: RegisterScreen
 },
   {
     headerMode: 'none'
