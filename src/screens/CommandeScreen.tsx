@@ -1,12 +1,14 @@
-import React, { Component } from 'react';
-import { NavigationScreenProp, NavigationState, } from 'react-navigation';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Button, Text, Modal } from "react-native-paper";
-import { Card, colors } from 'react-native-elements';
-import Header from '../components/Header';
-import Booking from '../core/models/Booking';
 import AsyncStorage from '@react-native-community/async-storage';
+import React, { Component } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Card, colors } from 'react-native-elements';
+import { Button, Modal, Portal, Text } from "react-native-paper";
+import { NavigationScreenProp, NavigationState } from 'react-navigation';
+import Header from '../components/Header';
 import Item from '../core/models/Item';
+import Order from '../core/models/Order';
+import OrderService from '../core/services/OrderService';
+import ProductService from '../core/services/ProductService';
 
 
 
@@ -24,36 +26,64 @@ export class CommandeScreen extends Component<Props, any> {
   constructor(props) {
     super(props);
     this.state = {
-      booking: null
+      order: null,
+      visible: false
     }
   }
 
   async componentDidMount() {
-    this.setState({ booking: JSON.parse(await AsyncStorage.getItem('currentBookingProcessed')) as Booking })
+    this.setState({ order: JSON.parse(await AsyncStorage.getItem('currentOrderProcessed')) as Order })
   }
 
   _specifyQuantityForItem(id: number, quantity: number) {
     console.log(id, quantity)
   }
 
-  alertNotComplet(itemId, productQuantity) { }
+  _hideModal() {
+    this.setState({ visible: false })
+  }
+  _showModal() {
+    this.setState({ visible: true })
+  }
+
+  alertComplete(itemId, productQuantity) {
+    Alert.alert("Confirmer la quantité", `Quantité délivrée : ${productQuantity}`,
+      [
+        {
+          text: "Annuler",
+          style: "cancel"
+        },
+        {
+          text: "Confirmer",
+          onPress: () => { ProductService.editDeliveredQuantity(itemId, this.state.order, productQuantity) }
+        },
+      ])
+  }
   render() {
-    if (this.state.booking != null) {
+    if (this.state.order != null) {
       return (
         <View>
-          <Header title="Commandes Screen"></Header>
+          <Portal>
+            <Modal visible={this.state.visible} onDismiss={() => { this._hideModal() }}>
+              <Text>Example Modal</Text>
+            </Modal>
+          </Portal>
+
+          <Header title="Commande Screen"></Header>
           <View>
-            {this.state.booking.order.items.map((item: Item) => {
+            {this.state.order.items.map((item: Item) => {
               return (
                 <Card containerStyle={commandeStyles.card}>
                   <View >
-                    <Text>Produit: {item.product.libelle}</Text>
+                    <Text>Produit : {item.product.libelle}</Text>
                     <Text>Quantité : {item.quantity}</Text>
                   </View>
-                  <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
-                    <Button color={colors.secondary} onPress={() => { }}>Non complet</Button>
-                    <Button onPress={() => { this.alertNotComplet(item.id, item.quantity) }} >Ok</Button>
-                  </View>
+                  {item.delivered_quantity == null &&
+                    <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
+                      <Button color={colors.secondary} onPress={() => { }}>Non complet</Button>
+                      <Button onPress={() => { this.alertComplete(item.id, item.quantity) }} >Ok</Button>
+                    </View>
+                  }
                 </Card>
               )
             })}
@@ -63,7 +93,7 @@ export class CommandeScreen extends Component<Props, any> {
     } else {
       return (
         <View>
-          <Header title="CommandeScreen"></Header>
+          <Header title="Commande Screen"></Header>
           <Text> Veuillez choisir une commande à traiter</Text>
         </View>
       )
