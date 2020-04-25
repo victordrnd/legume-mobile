@@ -8,17 +8,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 class BookingService {
   http: AxiosInstance;
-  _currentBookingprocessed: BehaviorSubject<any>= new BehaviorSubject<any>({});
+  _currentBookingprocessed: BehaviorSubject<any> = new BehaviorSubject<any>({});
   constructor() {
     this.http = Service.getInstance();
   }
 
-  getBookings(): Promise<any> {
-    return this.http.post(`${environment.apiUrl}/booking/all`)
-    .then( res => {
-      return res.data.data as Booking[];
-    })
-    .catch(err => console.warn(err))
+  getBookings(page): Promise<any> {
+    return this.http.get(`${environment.apiUrl}/booking/all?page=${page}`)
+      .then(res => {
+        return res.data.data as Booking[];
+      })
+      .catch(err => console.warn(err));
   }
 
   async setCurrentBookingProcessed(id): Promise<any> {
