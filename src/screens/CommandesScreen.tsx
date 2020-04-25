@@ -6,6 +6,8 @@ import Header from '../components/Header';
 import NavigationService from "../core/services/NavigationService";
 import BookingService from "../core/services/BookingService";
 import Booking from '../core/models/Booking';
+import { Portal, Modal, Button } from 'react-native-paper';
+import OrderService from '../core/services/OrderService';
 
 
 interface NavigationParams {
@@ -18,17 +20,19 @@ interface Props {
   navigation: Navigation;
 }
 
-export class CommandesScreen extends Component<Props> {
+export class CommandesScreen extends Component<Props, any> {
 
   constructor(props) {
     super(props);
     this.state = {
-      bookings: []
+      bookings: [],
+      page: 1,
     }
   }
 
+
   async componentDidMount() {
-    this.setState({ bookings: await BookingService.getBookings() });
+    this.setState({ bookings: await BookingService.getBookings(this.state.page) });
   }
 
   _openBookingAlert(id) {
@@ -41,11 +45,11 @@ export class CommandesScreen extends Component<Props> {
         },
         {
           text: 'Oui',
-          onPress: () => { 
-            BookingService.setCurrentBookingProcessed(id).then(()=> {
+          onPress: () => {
+            OrderService.setCurrentOrderProcessedByBookingId(id).then(() => {
               NavigationService.navigate('Booking', {});
             })
-           },
+          },
           style: 'default'
         }
       ])
@@ -55,11 +59,11 @@ export class CommandesScreen extends Component<Props> {
     return (
       <View>
         <Header title="Commandes Screen"></Header>
-        {this.state['bookings'].map((book: Booking, key: any) => {
+        {this.state.bookings.map((book: Booking, key: any) => {
           return (
             <View>
               <TouchableOpacity key={key} onPress={() => { this._openBookingAlert(book.id) }}>
-                <Card containerStyle={commandesStyles.card} title={"Commande #"+book.id}>
+                <Card containerStyle={commandesStyles.card} title={"Commande #" + book.id}>
                   <Text>Pour {book.schedule}</Text>
                 </Card>
               </TouchableOpacity>
