@@ -18,10 +18,8 @@ import { CommandesScreen } from './src/screens/CommandesScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import IntroScreen from './src/screens/IntroScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
-import { RegisterScreen } from './src/screens/RegisterScreen';
+
 export default class App extends React.Component {
-
-
 
   async componentDidMount() {
     let token = await AsyncStorage.getItem('@token');
@@ -102,8 +100,7 @@ const theme = {
 };
 
 const AuthenticationNavigator = createStackNavigator({
-  Login: LoginScreen,
-  Register: RegisterScreen
+  Login: LoginScreen
 },
   {
     headerMode: 'none'

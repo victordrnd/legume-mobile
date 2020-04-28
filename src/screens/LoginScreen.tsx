@@ -44,17 +44,9 @@ export class LoginScreen extends Component<Props> {
         <View>
           <StatusBar backgroundColor='#00d8a2' barStyle='light-content'></StatusBar>
           <View style={styles.headerView} >
-            <Image source={require('../../assets/logo.png')} style={{ width: 80, height: 80, alignSelf: "center", marginTop: 20, paddingBottom: 20 }} />
-            <View>
-              <View style={{ width: "50%", position: "absolute", top: 15 }}>
-                <Text style={styles.switch1}>Connexion</Text>
-              </View>
-              <View style={{ width: "50%", position: "absolute", left: "50%", top: 15 }}>
-                <Text style={styles.switch2} onPress={() => this.props.navigation.navigate('Register')}>Inscription</Text>
-              </View>
-            </View>
+            <Image source={require('../../assets/logo.png')} style={{ width: 80, height: 80, alignSelf: "center" }} />
           </View>
-          <View style={{ marginTop: -35 }}>
+          <View style={{ marginTop: -20 }}>
 
             <Card containerStyle={{ borderColor: 'transparent', elevation: 0, margin: -1, borderTopLeftRadius: 25, borderTopRightRadius: 25 }}>
               <Text style={styles.title}>Connexion</Text>
@@ -81,7 +73,7 @@ export class LoginScreen extends Component<Props> {
 const styles = StyleSheet.create({
   headerView: {
     backgroundColor: '#00d8a2',
-    height: 200,
+    height: 100,
     padding: 10,
   },
   title: {
