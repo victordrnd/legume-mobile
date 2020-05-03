@@ -20,8 +20,6 @@ export default class Header extends PureComponent<Props> {
   state = {
   }
 
-
-
   componentDidMount() {
   }
 
@@ -48,7 +46,7 @@ export default class Header extends PureComponent<Props> {
     const { right, left } = this.props
     return (
 
-      <View style={{marginBottom:75}}>
+      <View style={{paddingBottom:75}}>
 
         <View style={{ flex: 1, flexDirection: "column", justifyContent: "space-between" }}>
 
