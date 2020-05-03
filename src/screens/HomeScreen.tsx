@@ -23,12 +23,13 @@ export class HomeScreen extends React.Component<Props> {
     return (
       <View>
 
-        <StatusBar backgroundColor='#f1f3f6' barStyle='dark-content'></StatusBar>
+        <StatusBar backgroundColor='#fff' barStyle='dark-content'></StatusBar>
         <Header
           title="Gestion des stocks"></Header>
         <View style={{ marginTop: 150 }}>
 
-          <Text style={[styles.subtitle, { textAlign: "center" }]}>Plateforme de gestion des stocks Galaxy-Swiss Bourdin</Text>
+          <Text style={[ { textAlign: "center" }]}>Plateforme de gestion des commandes de</Text>
+          <Text style={[ { textAlign: "center" }]}>Rémy vous livre</Text>
           <LottieView source={require('../../assets/animations/office.json')} style={{ height: 340, alignSelf: "center" }} autoPlay loop={true} ref={animation => {
             this.animation = animation;
           }} />
