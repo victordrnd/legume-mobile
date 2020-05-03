@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React from 'react';
 import { StatusBar, View } from 'react-native';
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import { Transition } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
 import { createAppContainer } from 'react-navigation';
@@ -18,6 +18,8 @@ import { CommandesScreen } from './src/screens/CommandesScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import IntroScreen from './src/screens/IntroScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
+import theme from './src/theme';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
 
 export default class App extends React.Component {
 
@@ -32,7 +34,7 @@ export default class App extends React.Component {
   render() {
     return (
       <PaperProvider theme={theme}>
-        <StatusBar backgroundColor="#d8a864"></StatusBar>
+        <StatusBar backgroundColor="#d8a864" />
         <AppContainer ref={navigatorRef => { NavigationService.setTopLevelNavigator(navigatorRef) }} />
         <OfflineNotice />
       </PaperProvider>
@@ -40,15 +42,14 @@ export default class App extends React.Component {
   }
 }
 
-
-const bottomTabNavigator = createMaterialBottomTabNavigator(
+const bottomTabNavigator = createBottomTabNavigator(
   {
     Home: {
       screen: HomeScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <View style={{ backgroundColor: tintColor, borderRadius: 10, padding: 7, width: 40, marginTop: -7 }}>
-            <Icon style={{ color: "#000", textAlign: "center" }} name="home" size={20}></Icon>
+          <View style={{}}>
+            <Icon style={{ color: tintColor }} name="home" size={20}></Icon>
           </View>
         )
       }
@@ -57,8 +58,8 @@ const bottomTabNavigator = createMaterialBottomTabNavigator(
       screen: CommandesScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <View style={{ backgroundColor: tintColor, borderRadius: 10, padding: 7, width: 40, marginTop: -7 }}>
-            <Icon style={{ color: "#000", textAlign: "center" }} name="package" size={20}></Icon>
+          <View>
+            <Icon style={{ color: tintColor }} name="package" size={20}></Icon>
           </View>
         )
       }
@@ -67,37 +68,24 @@ const bottomTabNavigator = createMaterialBottomTabNavigator(
       screen: CommandeScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <View style={{ backgroundColor: tintColor, borderRadius: 10, padding: 7, width: 40, marginTop: -7 }}>
-            <Icon style={{ color: "#000", textAlign: "center" }} name="clipboard" size={20}></Icon>
+          <View>
+            <Icon style={{ color: tintColor }} name="clipboard" size={20}></Icon>
           </View>
         )
       }
     },
   },
   {
-    initialRouteName: 'Home',
-    activeColor: '#f1f3f6',
-    inactiveColor: '#fff',
-    labeled: false,
-    barStyle: { backgroundColor: '#fff', position: "absolute" },
+    tabBarOptions: {
+      activeTintColor: theme.colors.accent,
+      inactiveTintColor: theme.colors.primary,
+      keyboardHidesTabBar: true,
+      style : { borderTopColor: 'transparent' }
+    },
   },
 );
 
 
-
-
-
-
-const theme = {
-  ...DefaultTheme,
-  roundness: 2,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: '#8FE9B3',
-    accent: '#C40FFF',
-    background: '#f1f3f6'
-  },
-};
 
 const AuthenticationNavigator = createStackNavigator({
   Login: LoginScreen

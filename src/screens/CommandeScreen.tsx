@@ -1,15 +1,15 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
-import { Card, colors } from 'react-native-elements';
+import { Alert, StyleSheet, View, RefreshControl } from 'react-native';
+import { Card, colors, Input } from 'react-native-elements';
 import { Button, Modal, Portal, Text } from "react-native-paper";
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import Header from '../components/Header';
 import Item from '../core/models/Item';
 import Order from '../core/models/Order';
-import OrderService from '../core/services/OrderService';
+import BookingService from '../core/services/BookingService';
 import ProductService from '../core/services/ProductService';
-
+import { ScrollView } from 'react-native-gesture-handler';
+import theme from '../theme';
 
 
 interface NavigationParams {
@@ -27,12 +27,13 @@ export class CommandeScreen extends Component<Props, any> {
     super(props);
     this.state = {
       order: null,
-      visible: false
+      visible: false,
+      itemChanged: null
     }
   }
-
   async componentDidMount() {
-    this.setState({ order: JSON.parse(await AsyncStorage.getItem('currentOrderProcessed')) as Order })
+    let booking = await BookingService.getCurrentPorcessedBooking()
+    this.setState({ order: booking.data.order as Order })
   }
 
   _specifyQuantityForItem(id: number, quantity: number) {
@@ -47,7 +48,8 @@ export class CommandeScreen extends Component<Props, any> {
   }
 
   alertComplete(itemId, productQuantity) {
-    Alert.alert("Confirmer la quantité", `Quantité délivrée : ${productQuantity}`,
+    console.info('itemId ' + itemId)
+    Alert.alert(`Confirmer la quantité`, `Quantité délivrée : ${productQuantity}`,
       [
         {
           text: "Annuler",
@@ -55,53 +57,109 @@ export class CommandeScreen extends Component<Props, any> {
         },
         {
           text: "Confirmer",
-          onPress: () => { ProductService.editDeliveredQuantity(itemId, this.state.order, productQuantity) }
+          onPress: () => {
+            ProductService.editDeliveredQuantity(this.state.order, itemId, productQuantity).then(async () => {
+              let booking = await BookingService.getCurrentPorcessedBooking()
+              this.setState({ order: booking.data.order as Order })
+            })
+          }
         },
       ])
   }
+
+
   render() {
     if (this.state.order != null) {
       return (
         <View>
           <Portal>
-            <Modal visible={this.state.visible} onDismiss={() => { this._hideModal() }}>
-              <Text>Example Modal</Text>
+            <Modal contentContainerStyle={commandeStyles.modal} visible={this.state.visible} onDismiss={() => { this._hideModal() }}>
+              <View>
+                <Text style={commandeStyles.title}>Modifier la quantité donnée</Text>
+                <View>
+                  <Input keyboardType={'decimal-pad'} label="Nouvelle quantité" inputStyle={commandeStyles.inputs} value={this.state.newQuantity} labelStyle={{ fontWeight: "normal", fontFamily: "ProductSansRegular" }} containerStyle={{ marginTop: 35 }}
+                    onChangeText={newQuantity => this.setState({ newQuantity })}></Input>
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                  <Button labelStyle={{ fontSize: 18 }}
+                    onPress={() => {
+                      this.alertComplete(this.state.itemChanged, this.state.newQuantity);
+                      this._hideModal();
+                    }}>Ok</Button>
+                </View>
+              </View>
             </Modal>
           </Portal>
+          <Header title={`Commande #${this.state.order.id}`}></Header>
+          <ScrollView>
 
-          <Header title="Commande Screen"></Header>
-          <View>
-            {this.state.order.items.map((item: Item) => {
+            {this.state.order.items.map((item: Item, key: number) => {
+              console.log(item);
               return (
-                <Card containerStyle={commandeStyles.card}>
+                <Card containerStyle={commandeStyles.card} key={key} >
                   <View >
-                    <Text>Produit : {item.product.libelle}</Text>
-                    <Text>Quantité : {item.quantity}</Text>
+                    <Text>Produit : {item.product.category != undefined ? item.product.category.libelle : null} {item.product.libelle}</Text>
+                    <Text>Quantité demandée : {item.quantity}</Text>
+                    {item.delivered_quantity != null ? (<Text>Quantité réelle donnée {item.delivered_quantity}</Text>) : null}
                   </View>
                   {item.delivered_quantity == null &&
                     <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
-                      <Button color={colors.secondary} onPress={() => { }}>Non complet</Button>
+                      <Button color={colors.secondary} onPress={() => { this._showModal(); this.setState({ itemChanged: item.id }) }}>Non complet</Button>
                       <Button onPress={() => { this.alertComplete(item.id, item.quantity) }} >Ok</Button>
                     </View>
                   }
                 </Card>
               )
             })}
-          </View>
+          </ScrollView>
         </View>
       );
     } else {
       return (
-        <View>
+        <>
           <Header title="Commande Screen"></Header>
-          <Text> Veuillez choisir une commande à traiter</Text>
-        </View>
+          <ScrollView>
+            <View style={{ flex: 1 }}>
+              <Text> Veuillez choisir une commande à traiter</Text>
+            </View>
+          </ScrollView>
+        </>
       )
     }
   }
 }
 const commandeStyles = StyleSheet.create({
   card: {
-    borderRadius: 15
-  }
+    borderColor: 'transparent',
+    borderBottomColor: theme.colors.primary,
+    elevation: 0,
+    shadowColor: 'rgba(0,0,0, .2)',
+    shadowOffset: { height: 0, width: 0 },
+    shadowOpacity: 0, //default is 1
+    shadowRadius: 0//default is 1
+  },
+  title: {
+    fontSize: 20
+  },
+  modal: {
+    margin: 10,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 15,
+  },
+  inputs: {
+    marginVertical: 0,
+    marginHorizontal: 10,
+    backgroundColor: '#fff',
+    borderColor: '#00d8a2'
+  },
 })

@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, StatusBar, Image } from 'react-native';
-import { Button, Card, Input } from 'react-native-elements';
+import { StyleSheet, View, StatusBar, Image } from 'react-native';
+import { Card, Input, colors, Text } from 'react-native-elements';
+import { Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Feather';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import UserService from '../core/services/UserService';
+import theme from '../theme';
+
 interface NavigationParams {
   my_param: string;
 }
@@ -42,7 +45,7 @@ export class LoginScreen extends Component<Props> {
     return (
       <>
         <View>
-          <StatusBar backgroundColor='#00d8a2' barStyle='light-content'></StatusBar>
+          <StatusBar backgroundColor={theme.colors.primary} barStyle='light-content'></StatusBar>
           <View style={styles.headerView} >
             <Image source={require('../../assets/logo.png')} style={{ width: 80, height: 80, alignSelf: "center" }} />
           </View>
@@ -58,21 +61,20 @@ export class LoginScreen extends Component<Props> {
                 onChangeText={password => this.setState({ password })}
                 leftIcon={<Icon name='lock' size={24} color='grey' style={{ marginLeft: -15 }} />} blurOnSubmit={false} onSubmitEditing={() => this.submitForm()}></Input>
 
-              <Text style={{ marginTop: 20, textAlign: "right", color: '#00d8a2', fontFamily: "ProductSansRegular" }}>Mot de passe oublié ?</Text>
+              <Text style={{ marginTop: 20, textAlign: "right", color: theme.colors.accent, fontFamily: "ProductSansRegular" }}>Mot de passe oublié ?</Text>
             </Card>
           </View>
         </View>
-        <Button title="Connexion" buttonStyle={styles.confirmButton} titleStyle={{ fontFamily: "ProductSansBold" }} onPress={() => this.submitForm()} />
+        <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold" }} onPress={() => this.submitForm()} >Connexion</Button>
       </>
     )
   }
 
 }
 
-
 const styles = StyleSheet.create({
   headerView: {
-    backgroundColor: '#00d8a2',
+    backgroundColor: theme.colors.primary,
     height: 100,
     padding: 10,
   },
@@ -118,7 +120,6 @@ const styles = StyleSheet.create({
     borderColor: '#00d8a2'
   },
   confirmButton: {
-    backgroundColor: '#00d8a2',
     width: '80%',
     height: 45,
     borderRadius: 30,
