@@ -9,7 +9,7 @@ class UserService {
 
   http: AxiosInstance
   constructor() {
-    this.http = axios;
+    this.http = Service.getInstance();
   }
 
   private currentUserSubject = new BehaviorSubject<any>({});
@@ -28,16 +28,15 @@ class UserService {
   async populate() {
     if (await this.tokenObservable.subscribe(token => this.token = token)) {
       try {
-        await this.http
+        const res = await this.http
           .get(`${environment.apiUrl}/auth/current`).then(res => {
-            this.setAuth(res.data.result);
+            this.setAuth(res.data);
             this.isAuthenticatedSubject.next(true);
-            res.data.result.user.lastLogin = new Date();
-            this.currentUserSubject.next(res.data.result.user);
+            this.currentUserSubject.next(res.data.user);
           });
       } catch (error) {
         this.purgeAuth();
-        console.log(error)
+        console.log(error.response);
         this.isAuthenticatedSubject.next(false);
         return false;
       }

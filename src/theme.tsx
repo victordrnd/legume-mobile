@@ -5,9 +5,10 @@ import { DefaultTheme } from "react-native-paper";
   roundness: 2,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#40a500',
-    accent: '#f19200',
+    primary: '#fdf0dd',
+    accent: '#7f7fb8',
     background: '#efefef',
+    inactive : '#000'
   },
 };
 

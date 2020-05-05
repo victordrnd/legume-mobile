@@ -46,7 +46,7 @@ export default class Header extends PureComponent<Props> {
     const { right, left } = this.props
     return (
 
-      <View style={{paddingBottom:75}}>
+      <View style={{ paddingBottom: 75, height: 100 }}>
 
         <View style={{ flex: 1, flexDirection: "column", justifyContent: "space-between" }}>
 
@@ -54,9 +54,9 @@ export default class Header extends PureComponent<Props> {
             <View style={{ flex: 1 }}>
               {left}
             </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.titleDark, { textAlign: "center", marginTop: 25 }]}>{this.props.title}</Text>
-          </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.titleDark, { textAlign: "center", marginTop: 25 }]}>{this.props.title}</Text>  
+            </View>
 
             <View style={{ flex: 1 }}>
               {right ?

@@ -45,11 +45,11 @@ export class LoginScreen extends Component<Props> {
     return (
       <>
         <View>
-          <StatusBar backgroundColor={theme.colors.primary} barStyle='light-content'></StatusBar>
+          <StatusBar backgroundColor={theme.colors.primary} barStyle='dark-content'></StatusBar>
           <View style={styles.headerView} >
-            <Image source={require('../../assets/logo.png')} style={{ width: 80, height: 80, alignSelf: "center" }} />
+            <Image source={require('../../assets/logo.gif')} style={{ width: 80, height: 80, alignSelf: "center" }} />
           </View>
-          <View style={{ marginTop: -20 }}>
+          <View style={{ marginTop: -10 }}>
 
             <Card containerStyle={{ borderColor: 'transparent', elevation: 0, margin: -1, borderTopLeftRadius: 25, borderTopRightRadius: 25 }}>
               <Text style={styles.title}>Connexion</Text>
@@ -65,7 +65,7 @@ export class LoginScreen extends Component<Props> {
             </Card>
           </View>
         </View>
-        <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold" }} onPress={() => this.submitForm()} >Connexion</Button>
+        <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold", marginTop: 10 }} onPress={() => this.submitForm()} >Connexion</Button>
       </>
     )
   }

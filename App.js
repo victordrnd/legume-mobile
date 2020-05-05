@@ -6,7 +6,6 @@ import { Transition } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
 import { createAppContainer } from 'react-navigation';
 import createAnimatedSwitchNavigator from 'react-navigation-animated-switch';
-import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import OfflineNotice from './src/components/OfflineNotice';
 import NavigationService from './src/core/services/NavigationService';
@@ -34,7 +33,7 @@ export default class App extends React.Component {
   render() {
     return (
       <PaperProvider theme={theme}>
-        <StatusBar backgroundColor="#d8a864" />
+        <StatusBar backgroundColor="#fff" />
         <AppContainer ref={navigatorRef => { NavigationService.setTopLevelNavigator(navigatorRef) }} />
         <OfflineNotice />
       </PaperProvider>
@@ -78,9 +77,18 @@ const bottomTabNavigator = createBottomTabNavigator(
   {
     tabBarOptions: {
       activeTintColor: theme.colors.accent,
-      inactiveTintColor: theme.colors.primary,
+      inactiveTintColor: theme.colors.inactive,
       keyboardHidesTabBar: true,
-      style : { borderTopColor: 'transparent' }
+      style : { 
+        borderTopColor: 'transparent',
+        elevation : 1,
+        marginBottom :20, 
+        borderRadius : 20,
+        marginLeft : 15,
+        marginRight: 15,
+        height: 50,
+       },
+      showLabel : false
     },
   },
 );

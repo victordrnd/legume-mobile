@@ -78,9 +78,11 @@ export class CommandesScreen extends Component<Props, any> {
           {this.state.bookings.map((book: Booking, key: number) => {
             return book.order_id != null? (
               <TouchableOpacity key={key} onPress={() => { this._openBookingAlert(book) }}>
-                <Card containerStyle={commandesStyles.card} title={"Commande #" + book.id}>
-                  <Text>Pour le {book.schedule}</Text>
-                </Card>
+                <View style={commandesStyles.card} >
+                  {/* Ajouter un icone sur le coté gauche */}
+                  <Text style={{fontFamily : "ProductSansBold"}}>Commande {book.user.lastname.charAt(0).toUpperCase() + book.user.lastname.toLowerCase().slice(1)}</Text>
+                  <Text style={{fontFamily : "ProductSansRegular"}}>Pour le {book.schedule}</Text>
+                </View>
               </TouchableOpacity>
             ): null;
           })}
@@ -92,12 +94,16 @@ export class CommandesScreen extends Component<Props, any> {
 }
 const commandesStyles = StyleSheet.create({
   card: {
-    borderColor: 'transparent',
-    borderBottomColor: theme.colors.primary,
-    elevation:0,
-    shadowColor: 'rgba(0,0,0, .2)',
-    shadowOffset: { height: 0, width: 0 },
-    shadowOpacity: 0, //default is 1
-    shadowRadius: 0//default is 1
+    backgroundColor : "#fff",
+    borderWidth : 0,
+    borderRadius : 5,
+    marginBottom : 5,
+    height: 100,
+    marginTop : 10,
+    marginLeft:15,
+    marginRight : 15,
+    padding : 10,
+    borderBottomWidth :1,
+    borderBottomColor : theme.colors.accent
   }
 })

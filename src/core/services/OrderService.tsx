@@ -11,7 +11,7 @@ class OrderService {
   }
 
   prepare(id) {
-    return this.http.get(`${environment.apiUrl}/order/prepare?order_id=${id}`)
+    return this.http.put(`${environment.apiUrl}/order/prepare?order_id=${id}`)
       .catch(err => console.warn(err));
   }
 }
