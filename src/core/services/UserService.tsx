@@ -13,7 +13,7 @@ class UserService {
   }
 
   private currentUserSubject = new BehaviorSubject<any>({});
-  currentUser = this.currentUserSubject
+  public currentUser = this.currentUserSubject
     .asObservable()
     .pipe(distinctUntilChanged());
 
@@ -23,35 +23,35 @@ class UserService {
   tokenSubject = new BehaviorSubject<any>(false);
   tokenObservable = this.tokenSubject.asObservable();
 
-  token: string;
 
-  async populate() {
-    if (await this.tokenObservable.subscribe(token => this.token = token)) {
+  async load(): Promise<boolean> {
+    let token;
+    try {
+      Service.token = await AsyncStorage.getItem("@token");
+    } catch (error) {
+      return false
+    }
+    if (token != null) {
       try {
         const res = await this.http
-          .get(`${environment.apiUrl}/auth/current`).then(res => {
-            this.setAuth(res.data);
-            this.isAuthenticatedSubject.next(true);
-            this.currentUserSubject.next(res.data.user);
-          });
-      } catch (error) {
-        this.purgeAuth();
-        console.log(error.response);
-        this.isAuthenticatedSubject.next(false);
+          .get(`${environment.apiUrl}/auth/current`);
+        if (res.status == 200) {
+          this.setAuth(res.data);
+          return true;
+        }
+      }
+      catch (err) {
+        console.info(err.response);
         return false;
       }
-      return true;
-    } else {
-      // Remove any potential remnants of previous auth states
-      //this.purgeAuth();
-      return false;
     }
+    this.purgeAuth();
+    return false
   }
 
   async login(obj, callback, errorCallback) {
     this.http.post(`${environment.apiUrl}/auth/login`, obj)
       .then((res) => {
-        // console.log(res);
         callback(res.data);
       })
       .catch((error) => {
@@ -79,11 +79,11 @@ class UserService {
 
 
   getToken(): string {
-    return this.token;
+    return Service.token;
   }
 
   async destroyToken() {
-    AsyncStorage.removeItem('@token')
+    await AsyncStorage.removeItem('@token')
   }
 
 

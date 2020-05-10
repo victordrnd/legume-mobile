@@ -9,7 +9,6 @@ import createAnimatedSwitchNavigator from 'react-navigation-animated-switch';
 import { createStackNavigator } from 'react-navigation-stack';
 import OfflineNotice from './src/components/OfflineNotice';
 import NavigationService from './src/core/services/NavigationService';
-import Service from './src/core/services/Service';
 import UserService from './src/core/services/UserService';
 import { AuthLoadingScreen } from './src/screens/AuthLoadingScreen';
 import { CommandeScreen } from './src/screens/CommandeScreen';
@@ -23,10 +22,7 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 export default class App extends React.Component {
 
   async componentDidMount() {
-    let token = await AsyncStorage.getItem('@token');
-    UserService.tokenSubject.next(token);
-    Service.token = token;
-    await UserService.populate();
+    await UserService.load();
   }
 
 
