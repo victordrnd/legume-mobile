@@ -28,6 +28,7 @@ class UserService {
     try {
       Service.token = await AsyncStorage.getItem("@token");
     } catch (error) {
+      this.purgeAuth();
       return false;
     }
     try {
@@ -66,9 +67,7 @@ class UserService {
   }
 
 
-  async setAuth({ user, token }) {
-    await AsyncStorage.setItem('@token', token);
-    Service.token = token;
+  async setAuth({ user }) {
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
   }
