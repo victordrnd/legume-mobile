@@ -25,28 +25,24 @@ class UserService {
 
 
   async load(): Promise<boolean> {
-    let token;
     try {
       Service.token = await AsyncStorage.getItem("@token");
     } catch (error) {
-      return false
+      return false;
     }
-    if (token != null) {
-      try {
-        const res = await this.http
-          .get(`${environment.apiUrl}/auth/current`);
-        if (res.status == 200) {
-          this.setAuth(res.data);
-          return true;
-        }
+    try {
+      const res = await this.http
+        .get(`${environment.apiUrl}/auth/current`);
+      if (res.status == 200) {
+        this.setAuth(res.data);
+        return true;
       }
-      catch (err) {
-        console.info(err.response);
-        return false;
-      }
+    }
+    catch (err) {
+      return false;
     }
     this.purgeAuth();
-    return false
+    return false;
   }
 
   async login(obj, callback, errorCallback) {
