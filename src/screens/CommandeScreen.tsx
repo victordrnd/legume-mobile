@@ -37,12 +37,8 @@ export class CommandeScreen extends Component<Props, any> {
     this.setState({ booking: booking.data as Booking })
   }
 
-  _hideModal() {
-    this.setState({ visible: false })
-  }
-  _showModal() {
-    this.setState({ visible: true })
-  }
+  _hideModal() { this.setState({ visible: false }) }
+  _showModal() { this.setState({ visible: true }) }
 
   alertComplete(item: Item, productQuantity) {
     Alert.alert(`Confirmer la quantité`, `Quantité délivrée : ${productQuantity}`,
@@ -66,7 +62,6 @@ export class CommandeScreen extends Component<Props, any> {
 
   render() {
     if (this.state.booking != null) {
-      console.info(this.state.booking);
       return (
         <View>
           <Portal>
@@ -100,7 +95,7 @@ export class CommandeScreen extends Component<Props, any> {
                   </View>
                   {item.delivered_quantity == null &&
                     <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
-                      <Button color={colors.secondary} onPress={() => { this._showModal(); this.setState({ itemChanged: item.id }) }}>Non complet</Button>
+                      <Button color={colors.secondary} onPress={() => { this._showModal(); this.setState({ itemChanged: item }) }}>Non complet</Button>
                       <Button onPress={() => { this.alertComplete(item, item.quantity) }} >Ok</Button>
                     </View>
                   }

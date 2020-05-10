@@ -62,7 +62,6 @@ class UserService {
         callback(res.data);
       })
       .catch((error) => {
-        console.info(error.response.data)
       })
   }
 

@@ -14,15 +14,11 @@ class ProductService {
     let body = {
       "order_id": order.id,
       "items": [
-        { "id": item.id, "delivered_quantity": delivered_quantity, "type": item.buyable_type }
+        { "id": item.product.id, "delivered_quantity": delivered_quantity, "type": item.buyable_type }
       ]
     }
 
-    console.log(body)
-
-    return this.http.put(`${environment.apiUrl}/order/edit`, body).catch((err) => {
-      console.warn(err.response);
-    })
+    return this.http.put(`${environment.apiUrl}/order/edit`, body).catch((err) => console.warn(err));
   }
 }
 
