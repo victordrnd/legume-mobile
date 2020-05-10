@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
-import { Card } from "react-native-elements";
 import Header from '../components/Header';
 import NavigationService from "../core/services/NavigationService";
 import BookingService from "../core/services/BookingService";
 import Booking from '../core/models/Booking';
-import { ScrollView, FlatList } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import theme from '../theme';
+import { Snackbar } from 'react-native-paper';
 
 
 interface NavigationParams {
@@ -27,7 +27,9 @@ export class CommandesScreen extends Component<Props, any> {
     this.state = {
       bookings: [],
       page: 1,
-      refreshing: false
+      refreshing: false,
+      _snackBarMessage: "",
+      _snackbarVisible: false,
     }
   }
 
@@ -51,8 +53,12 @@ export class CommandesScreen extends Component<Props, any> {
           text: 'Oui',
           onPress: () => {
 
-            BookingService.setCurrentBooking(booking).then(() => {
-              NavigationService.navigate('Booking', {});
+            BookingService.setCurrentBooking(booking).then((res) => {
+              console.info(res)
+              if (res.success)
+                NavigationService.navigate('Booking', {});
+              else
+                this.setState({_snackBarMessage: res.message, _snackbarVisible: true})
             })
           },
           style: 'default'
@@ -69,41 +75,45 @@ export class CommandesScreen extends Component<Props, any> {
 
   render() {
     return (
-      <View>
+      <>
         <Header title="Commandes Screen"></Header>
         <ScrollView refreshControl={
           <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.refreshList() }} />
         }
         >
           {this.state.bookings.map((book: Booking, key: number) => {
-            return book.order_id != null? (
+            return book.order_id != null ? (
               <TouchableOpacity key={key} onPress={() => { this._openBookingAlert(book) }}>
                 <View style={commandesStyles.card} >
                   {/* Ajouter un icone sur le coté gauche */}
-                  <Text style={{fontFamily : "ProductSansBold"}}>Commande {book.user.lastname.charAt(0).toUpperCase() + book.user.lastname.toLowerCase().slice(1)}</Text>
-                  <Text style={{fontFamily : "ProductSansRegular"}}>Pour le {book.schedule}</Text>
+                  <Text style={{ fontFamily: "ProductSansBold" }}>Commande {book.user.lastname.charAt(0).toUpperCase() + book.user.lastname.toLowerCase().slice(1)}</Text>
+                  <Text style={{ fontFamily: "ProductSansRegular" }}>Pour le {book.schedule}</Text>
                 </View>
               </TouchableOpacity>
-            ): null;
+            ) : null;
           })}
         </ScrollView>
-      </View>
+        <Snackbar visible={this.state._snackbarVisible} onDismiss={() => this.setState({ _snackbarVisible: false })}
+        duration={1000} style={{backgroundColor:theme.colors.error}}>
+          {this.state._snackBarMessage}
+        </Snackbar>
+      </>
     )
   }
 
 }
 const commandesStyles = StyleSheet.create({
   card: {
-    backgroundColor : "#fff",
-    borderWidth : 0,
-    borderRadius : 5,
-    marginBottom : 5,
+    backgroundColor: "#fff",
+    borderWidth: 0,
+    borderRadius: 5,
+    marginBottom: 5,
     height: 100,
-    marginTop : 10,
-    marginLeft:15,
-    marginRight : 15,
-    padding : 10,
-    borderBottomWidth :1,
-    borderBottomColor : theme.colors.accent
+    marginTop: 10,
+    marginLeft: 15,
+    marginRight: 15,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.accent
   }
 })

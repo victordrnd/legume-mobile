@@ -21,8 +21,14 @@ class BookingService {
   }
 
   async setCurrentBooking(booking: Booking) {
-    await AsyncStorage.setItem('currentBookingProcessedId', booking.id.toString());
-    return this.http.put(`${environment.apiUrl}/order/prepare`, { order_id: booking.order_id })
+    if (await AsyncStorage.getItem('currentBookingProcessedId') == null) {
+      await AsyncStorage.setItem('currentBookingProcessedId', booking.id.toString());
+      await this.http.put(`${environment.apiUrl}/order/prepare`, { order_id: booking.order_id })
+      return { "success": true }
+    }
+    else return {
+      "success": false, "message": "Vous gérez déjà une commande !"
+    }
   }
 
   async getCurrentPorcessedBooking() {
