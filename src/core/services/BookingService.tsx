@@ -12,7 +12,7 @@ class BookingService {
     this.http = Service.getInstance();
   }
 
-  getBookings(page, perpage:number = 10) {
+  getBookings(page, perpage: number = 10) {
     return this.http.get(`${environment.apiUrl}/booking/all?page=${page}&per_page=${perpage}`)
       .then(res => {
         return res.data.data as Booking[];
@@ -20,13 +20,13 @@ class BookingService {
       .catch(err => console.warn(err));
   }
 
-  async setCurrentBooking(booking: Booking){
-    await this.http.put(`${environment.apiUrl}/order/prepare`, {order_id: booking.order_id})
-    return AsyncStorage.setItem('currentBookingProcessedId',booking.id.toString());
+  async setCurrentBooking(booking: Booking) {
+    await AsyncStorage.setItem('currentBookingProcessedId', booking.id.toString());
+    return this.http.put(`${environment.apiUrl}/order/prepare`, { order_id: booking.order_id })
   }
 
   async getCurrentPorcessedBooking() {
-    return await this.http.get(`${environment.apiUrl}/booking/${await AsyncStorage.getItem('currentBookingProcessedId')}`);
+    return this.http.get(`${environment.apiUrl}/booking/${await AsyncStorage.getItem('currentBookingProcessedId')}`);
   }
 }
 

@@ -10,6 +10,7 @@ import BookingService from '../core/services/BookingService';
 import ProductService from '../core/services/ProductService';
 import { ScrollView } from 'react-native-gesture-handler';
 import theme from '../theme';
+import Booking from '../core/models/Booking';
 
 
 interface NavigationParams {
@@ -26,18 +27,14 @@ export class CommandeScreen extends Component<Props, any> {
   constructor(props) {
     super(props);
     this.state = {
-      order: null,
+      booking: null,
       visible: false,
       itemChanged: null
     }
   }
   async componentDidMount() {
-    let booking = await BookingService.getCurrentPorcessedBooking()
-    this.setState({ order: booking.data.order as Order })
-  }
-
-  _specifyQuantityForItem(id: number, quantity: number) {
-    console.log(id, quantity)
+    let booking = await BookingService.getCurrentPorcessedBooking();
+    this.setState({ booking: booking.data as Booking })
   }
 
   _hideModal() {
@@ -47,8 +44,7 @@ export class CommandeScreen extends Component<Props, any> {
     this.setState({ visible: true })
   }
 
-  alertComplete(itemId, productQuantity) {
-    console.info('itemId ' + itemId)
+  alertComplete(item: Item, productQuantity) {
     Alert.alert(`Confirmer la quantité`, `Quantité délivrée : ${productQuantity}`,
       [
         {
@@ -58,9 +54,9 @@ export class CommandeScreen extends Component<Props, any> {
         {
           text: "Confirmer",
           onPress: () => {
-            ProductService.editDeliveredQuantity(this.state.order, itemId, productQuantity).then(async () => {
-              let booking = await BookingService.getCurrentPorcessedBooking()
-              this.setState({ order: booking.data.order as Order })
+            ProductService.editDeliveredQuantity(this.state.booking.order, item, productQuantity).then(async () => {
+              let booking = await BookingService.getCurrentPorcessedBooking();
+              this.setState({ booking: booking.data as Booking })
             })
           }
         },
@@ -69,7 +65,8 @@ export class CommandeScreen extends Component<Props, any> {
 
 
   render() {
-    if (this.state.order != null) {
+    if (this.state.booking != null) {
+      console.info(this.state.booking);
       return (
         <View>
           <Portal>
@@ -90,11 +87,10 @@ export class CommandeScreen extends Component<Props, any> {
               </View>
             </Modal>
           </Portal>
-          <Header title={`Commande #${this.state.order.id}`}></Header>
+          <Header title={`Commande #${this.state.booking.id}`}></Header>
           <ScrollView>
 
-            {this.state.order.items.map((item: Item, key: number) => {
-              console.log(item);
+            {this.state.booking.order.items.map((item: Item, key: number) => {
               return (
                 <Card containerStyle={commandeStyles.card} key={key} >
                   <View >
@@ -105,7 +101,7 @@ export class CommandeScreen extends Component<Props, any> {
                   {item.delivered_quantity == null &&
                     <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
                       <Button color={colors.secondary} onPress={() => { this._showModal(); this.setState({ itemChanged: item.id }) }}>Non complet</Button>
-                      <Button onPress={() => { this.alertComplete(item.id, item.quantity) }} >Ok</Button>
+                      <Button onPress={() => { this.alertComplete(item, item.quantity) }} >Ok</Button>
                     </View>
                   }
                 </Card>

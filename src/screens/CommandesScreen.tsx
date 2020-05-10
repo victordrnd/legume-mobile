@@ -63,7 +63,7 @@ export class CommandesScreen extends Component<Props, any> {
   async refreshList() {
     this._swipeRefreshing();
     BookingService.getBookings(1)
-      .then((data) => {this.setState({ bookings: data }); console.log(data)})
+      .then((data) => this.setState({ bookings: data }))
       .then(() => { this._swipeRefreshing() });
   }
 
