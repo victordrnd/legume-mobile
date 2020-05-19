@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, StatusBar, Image } from 'react-native';
 import { Card, Input, colors, Text } from 'react-native-elements';
-import { Button } from 'react-native-paper';
+import { Button, Snackbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Feather';
 import { NavigationScreenProp, NavigationState } from 'react-navigation';
 import UserService from '../core/services/UserService';
 import theme from '../theme';
+import NavigationService from '../core/services/NavigationService';
 
 interface NavigationParams {
   my_param: string;
@@ -21,22 +22,39 @@ export class LoginScreen extends Component<Props> {
 
   state = {
     email: '',
-    password: ''
+    password: '',
+    _snackbarVisible: false,
+    _snackbarText: "",
+    _snackbarTheme: {},
   }
 
 
 
   async submitForm() {
+
+
     if (this.state.email && this.state.password) {
-      await UserService.login(this.state, async (res) => {
-        await UserService.setAuth(res);
-        this.props.navigation.navigate('Home');
-      },
-        (error) => {
-          alert('Identifiants incorrects')
+      UserService.login(this.state,
+        () => {
+          return (<Snackbar visible={true} onDismiss={() => { }}>Identifiants incorrects</Snackbar>);
+
+        }).then((res) => {
+          if (res) this.props.navigation.navigate('Home')
+          else {
+            this.state._snackbarText = "Mauvais identifiants";
+            this.state._snackbarVisible = true;
+            this.state._snackbarTheme = { backgroundColor: theme.colors.error };
+          };
         });
+
     } else {
-      alert('Certain champs ne sont pas remplis correctement.')
+      this.setState({
+
+        _snackbarText: "Veuillez remplir tous les champs",
+        _snackbarVisible: true,
+        _snackbarTheme: { backgroundColor: theme.colors.warning },
+      });
+
     }
   }
 
@@ -66,6 +84,7 @@ export class LoginScreen extends Component<Props> {
           </View>
         </View>
         <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold", marginTop: 10 }} onPress={() => this.submitForm()} >Connexion</Button>
+        <Snackbar visible={this.state._snackbarVisible} duration={900} onDismiss={() => { this.setState({ _snackbarVisible: false }) }} style={[{ borderRadius: 100, justifyContent: "center", alignContent:"center" }, this.state._snackbarTheme]}>{this.state._snackbarText}</Snackbar>
       </>
     )
   }

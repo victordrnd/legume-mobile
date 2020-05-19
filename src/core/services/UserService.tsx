@@ -46,29 +46,25 @@ class UserService {
     return false;
   }
 
-  async login(obj, callback, errorCallback) {
-    this.http.post(`${environment.apiUrl}/auth/login`, obj)
-      .then((res) => {
-        callback(res.data);
+  async login(obj, errorCallback) {
+    return this.http.post(`${environment.apiUrl}/auth/login`, obj)
+      .then((value) => value.data)
+      .then(async (res) => {
+        await this.setAuth(res);
+        return true;
       })
       .catch((error) => {
         errorCallback(error);
       })
   }
 
-  async signup(obj, callback) {
-    this.http.post(`${environment.apiUrl}/auth/signup`, obj)
-      .then((res) => {
-        callback(res.data);
-      })
-      .catch((error) => {
-      })
-  }
 
-
-  async setAuth({ user }) {
+  async setAuth({ user, token }) {
+    Service.token = token;
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
+    await AsyncStorage.setItem('@token', token);
+  
   }
 
 

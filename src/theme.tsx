@@ -8,7 +8,8 @@ import { DefaultTheme } from "react-native-paper";
     primary: '#fdf0dd',
     accent: '#7f7fb8',
     background: '#efefef',
-    inactive : '#000'
+    inactive : '#000',
+    warning: "#ffcb27"
   },
 };
 
