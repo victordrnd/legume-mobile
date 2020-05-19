@@ -1,6 +1,8 @@
 import { AxiosInstance } from 'axios';
 import environment from '../../../environments/environment';
 import Service from "./Service";
+import Order from '../models/Order';
+import Item from '../models/Item';
 
 
 class OrderService {
@@ -13,6 +15,14 @@ class OrderService {
   prepare(id) {
     return this.http.put(`${environment.apiUrl}/order/prepare?order_id=${id}`)
       .catch(err => console.warn(err));
+  }
+
+  
+  editDeliveredQuantity(order: Order, items: Array<Item>) {
+    let body = {
+      items : items
+    }
+    return this.http.put(`${environment.apiUrl}/order/${order.id}/edit`, body).catch((err) => console.warn(err));
   }
 }
 

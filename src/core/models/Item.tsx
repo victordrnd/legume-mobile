@@ -6,6 +6,6 @@ export default interface Item {
   quantity: number;
   delivered_quantity: number;
   order_id: number;
-  buyable_type: string;
+  type: string;
   product: Product;
 }

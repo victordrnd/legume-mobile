@@ -11,6 +11,7 @@ import ProductService from '../core/services/ProductService';
 import { ScrollView } from 'react-native-gesture-handler';
 import theme from '../theme';
 import Booking from '../core/models/Booking';
+import OrderService from '../core/services/OrderService';
 
 
 interface NavigationParams {
@@ -50,7 +51,7 @@ export class CommandeScreen extends Component<Props, any> {
         {
           text: "Confirmer",
           onPress: () => {
-            ProductService.editDeliveredQuantity(this.state.booking.order, item, productQuantity).then(async () => {
+            OrderService.editDeliveredQuantity(this.state.booking.order, this.state.booking.order.items).then(async () => {
               let booking = await BookingService.getCurrentPorcessedBooking();
               this.setState({ booking: booking.data as Booking })
             })
