@@ -43,10 +43,11 @@ const bottomTabNavigator = createBottomTabNavigator(
       screen: HomeScreen,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <View style={{}}>
+          <View>
             <Icon style={{ color: tintColor }} name="home" size={20}></Icon>
           </View>
-        )
+        ),
+        title : "Accueil"
       }
     },
     Bookings: {
@@ -56,7 +57,8 @@ const bottomTabNavigator = createBottomTabNavigator(
           <View>
             <Icon style={{ color: tintColor }} name="package" size={20}></Icon>
           </View>
-        )
+        ),
+        title : "Commandes"
       }
     },
     Booking: {
@@ -66,25 +68,24 @@ const bottomTabNavigator = createBottomTabNavigator(
           <View>
             <Icon style={{ color: tintColor }} name="clipboard" size={20}></Icon>
           </View>
-        )
-      }
+        ),
+        title : "Préparation"
+      },
     },
   },
   {
     tabBarOptions: {
-      activeTintColor: theme.colors.accent,
+      activeTintColor: theme.colors.primary,
       inactiveTintColor: theme.colors.inactive,
       keyboardHidesTabBar: true,
       style : { 
         borderTopColor: 'transparent',
         elevation : 1,
-        marginBottom :20, 
-        borderRadius : 20,
-        marginLeft : 15,
-        marginRight: 15,
-        height: 50,
+        borderRadius : 5,
+        backgroundColor:"white"
+        // height: 50,
        },
-      showLabel : false
+      showLabel : true
     },
   },
 );

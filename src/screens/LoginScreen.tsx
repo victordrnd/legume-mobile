@@ -65,9 +65,9 @@ export class LoginScreen extends Component<Props> {
         <View>
           <StatusBar backgroundColor={theme.colors.primary} barStyle='dark-content'></StatusBar>
           <View style={styles.headerView} >
-            <Image source={require('../../assets/logo.gif')} style={{ width: 80, height: 80, alignSelf: "center" }} />
+            <Image source={require('../../assets/logo2.gif')} style={{ width: 60, height: 60, alignSelf: "center" }} />
           </View>
-          <View style={{ marginTop: -10 }}>
+          <View style={{ marginTop: -20 }}>
 
             <Card containerStyle={{ borderColor: 'transparent', elevation: 0, margin: -1, borderTopLeftRadius: 25, borderTopRightRadius: 25 }}>
               <Text style={styles.title}>Connexion</Text>
@@ -83,7 +83,7 @@ export class LoginScreen extends Component<Props> {
             </Card>
           </View>
         </View>
-        <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold", marginTop: 10 }} onPress={() => this.submitForm()} >Connexion</Button>
+        <Button color={theme.colors.primary} mode="contained" style={styles.confirmButton} labelStyle={{ fontFamily: "ProductSansBold", marginTop: 10, color : 'white' }} onPress={() => this.submitForm()} >Connexion</Button>
         <Snackbar visible={this.state._snackbarVisible} duration={900} onDismiss={() => { this.setState({ _snackbarVisible: false }) }} style={[{ borderRadius: 100, justifyContent: "center", alignContent:"center" }, this.state._snackbarTheme]}>{this.state._snackbarText}</Snackbar>
       </>
     )

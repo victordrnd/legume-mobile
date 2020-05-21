@@ -49,7 +49,7 @@ export class AuthLoadingScreen extends Component<Props> {
       <>
         <StatusBar backgroundColor="#fff" barStyle='light-content'></StatusBar>
         <View style={{ backgroundColor: "#fff", height: "100%", width: "100%" }}>
-          <Image source={require('../../assets/logo.gif')} style={{ alignSelf: "center", marginTop: 150, height: 200, width: 200 }}></Image>
+          <Image source={require('../../assets/logo2.gif')} style={{ alignSelf: "center", marginTop: 150, height: 200, width: 200 }}></Image>
           <LottieView source={require('../../assets/animations/loading.json')} style={{ marginTop: 100, width: 200, alignSelf: "center" }} autoPlay loop ref={animation => {
             this.animation = animation;
           }} />

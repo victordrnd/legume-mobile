@@ -12,12 +12,12 @@ class BookingService {
     this.http = Service.getInstance();
   }
 
-  getBookings(page, perpage: number = 10) {
+  getBookings(page = 1, perpage: number = 15) {
     return this.http.get(`${environment.apiUrl}/booking/all?page=${page}&per_page=${perpage}`)
       .then(res => {
         return res.data.data as Booking[];
-      })
-      .catch(err => console.warn(err));
+      }) 
+      .catch(err => console.warn(JSON.stringify(err.message)));
   }
 
   async setCurrentBooking(booking: Booking) {
