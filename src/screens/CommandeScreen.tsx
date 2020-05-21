@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
 import { Alert, StyleSheet, View, RefreshControl } from 'react-native';
-import { Card, colors, Input } from 'react-native-elements';
-import { Button, Modal, Portal, Text } from "react-native-paper";
-import { NavigationScreenProp, NavigationState } from 'react-navigation';
+import { Button, Portal, Text, List, Badge, Avatar, Chip, Dialog, Paragraph } from "react-native-paper";
+import { NavigationScreenProp, NavigationState, NavigationEvents } from 'react-navigation';
 import Header from '../components/Header';
 import Item from '../core/models/Item';
-import Order from '../core/models/Order';
 import BookingService from '../core/services/BookingService';
-import ProductService from '../core/services/ProductService';
+import OrderService from '../core/services/OrderService';
 import { ScrollView } from 'react-native-gesture-handler';
 import theme from '../theme';
 import Booking from '../core/models/Booking';
-import OrderService from '../core/services/OrderService';
-
-
+import NumericInput from 'react-native-numeric-input'
+import Icon from 'react-native-vector-icons/Feather';
+import NavigationService from '../core/services/NavigationService';
+import AsyncStorage from '@react-native-community/async-storage';
 interface NavigationParams {
   my_param: string;
 }
@@ -30,34 +29,30 @@ export class CommandeScreen extends Component<Props, any> {
     this.state = {
       booking: null,
       visible: false,
-      itemChanged: null
+      itemChanged: {
+        quantity: 0
+      },
+      key: 0
     }
   }
-  async componentDidMount() {
-    let booking = await BookingService.getCurrentPorcessedBooking();
-    this.setState({ booking: booking.data as Booking })
+  componentDidMount() {
+    this.setBooking();
   }
 
-  _hideModal() { this.setState({ visible: false }) }
-  _showModal() { this.setState({ visible: true }) }
+  async setBooking() {
+    let booking = await BookingService.getCurrentPorcessedBooking();
+    this.setState({ booking: booking.data as Booking })
 
-  alertComplete(item: Item, productQuantity) {
-    Alert.alert(`Confirmer la quantité`, `Quantité délivrée : ${productQuantity}`,
-      [
-        {
-          text: "Annuler",
-          style: "cancel"
-        },
-        {
-          text: "Confirmer",
-          onPress: () => {
-            OrderService.editDeliveredQuantity(this.state.booking.order, this.state.booking.order.items).then(async () => {
-              let booking = await BookingService.getCurrentPorcessedBooking();
-              this.setState({ booking: booking.data as Booking })
-            })
-          }
-        },
-      ])
+  }
+  _hideModal() { this.setState({ visible: false }) }
+  _showModal(key) { this.setState({ visible: true, itemChanged: { ...this.state.booking.order.items[key], delivered_quantity: this.state.booking.order.items[key].quantity }, key: key }) }
+
+  onComplete() {
+    OrderService.editDeliveredQuantity(this.state.booking.order, this.state.booking.order.items).then(async () => {
+      NavigationService.navigate('Bookings', {});
+      AsyncStorage.removeItem('currentBookingProcessedId');
+      this.setState({booking : null});
+    }).catch(err => Alert.alert("Erreur", err.result))
   }
 
 
@@ -66,44 +61,56 @@ export class CommandeScreen extends Component<Props, any> {
       return (
         <View>
           <Portal>
-            <Modal contentContainerStyle={commandeStyles.modal} visible={this.state.visible} onDismiss={() => { this._hideModal() }}>
-              <View>
-                <Text style={commandeStyles.title}>Modifier la quantité donnée</Text>
-                <View>
-                  <Input keyboardType={'decimal-pad'} label="Nouvelle quantité" inputStyle={commandeStyles.inputs} value={this.state.newQuantity} labelStyle={{ fontWeight: "normal", fontFamily: "ProductSansRegular" }} containerStyle={{ marginTop: 35 }}
-                    onChangeText={newQuantity => this.setState({ newQuantity })}></Input>
+            <Dialog
+              visible={this.state.visible}
+              onDismiss={() => this.setState({ visible: false })}>
+              <Dialog.Content>
+                <Text style={{ fontFamily: "ProductSansBold" }}>Quantité livrée :</Text>
+                <Paragraph>{this.state.itemChanged.libelle} - {this.state.booking.order.items[this.state.key].product.unit}</Paragraph>
+                <View style={{ alignItems: "center",marginBottom : 50, marginTop:50 }}>
+                  <NumericInput type='plus-minus' rounded={true} separatorWidth={0} totalWidth={150} valueType='real' value={this.state.itemChanged.delivered_quantity} onChange={value => this.setState({ itemChanged: { ...this.state.itemChanged, delivered_quantity: value } })} maxValue={10} minValue={0} />
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Button labelStyle={{ fontSize: 18 }}
-                    onPress={() => {
-                      this.alertComplete(this.state.itemChanged, this.state.newQuantity);
-                      this._hideModal();
-                    }}>Ok</Button>
+                <Button mode="contained"  labelStyle={{ color: "white" }} onPress={() => {
+                  this.state.booking.order.items[this.state.key] = this.state.itemChanged;
+                  this.setState({ bookings: this.state.booking, visible: false });
+                }}>Confirmer</Button>
+              </Dialog.Content>
+            </Dialog>
+          </Portal>
+          <View style={{ height: 50, marginTop: 40 }}>
+            <View style={{ flex: 1, flexDirection: "column", justifyContent: "space-between", }}>
+              <View style={{ flex: 1, flexDirection: "row" }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: "ProductSansBold", fontSize: 25, marginLeft: 15 }}>En préparation</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Chip style={{ width: 150, alignSelf: 'flex-end', marginRight: 20 }}>Commande #{this.state.booking.id}</Chip>
                 </View>
               </View>
-            </Modal>
-          </Portal>
-          <Header title={`Commande #${this.state.booking.id}`}></Header>
+            </View>
+          </View>
+          {/* <NavigationEvents
+            onDidFocus={() => this.setBooking()}
+          /> */}
           <ScrollView>
 
             {this.state.booking.order.items.map((item: Item, key: number) => {
               return (
-                <Card containerStyle={commandeStyles.card} key={key} >
-                  <View >
-                    <Text>Produit : {item.product.category != undefined ? item.product.category.libelle : null} {item.product.libelle}</Text>
-                    <Text>Quantité demandée : {item.quantity}</Text>
-                    {item.delivered_quantity != null ? (<Text>Quantité réelle donnée {item.delivered_quantity}</Text>) : null}
-                  </View>
-                  {item.delivered_quantity == null &&
-                    <View style={{ flexDirection: "row", justifyContent: 'flex-end' }} >
-                      <Button color={colors.secondary} onPress={() => { this._showModal(); this.setState({ itemChanged: item }) }}>Non complet</Button>
-                      <Button onPress={() => { this.alertComplete(item, item.quantity) }} >Ok</Button>
-                    </View>
-                  }
-                </Card>
+                <List.Item
+                  key={key}
+                  left={() => <Avatar.Text size={35} labelStyle={{ color: 'white', fontSize: 12 }} style={{ backgroundColor: theme.colors.primary, margin: 10 }} label={'x' + item.quantity}></Avatar.Text>}
+                  right={() => <Button mode="contained" style={commandeStyles.addToBagButton} onPress={() => console.log('Pressed')}><Icon name={item.delivered_quantity != null ? "check-circle" : "shopping-bag"} color="white" size={15}></Icon> </Button>}
+                  title={item.product.libelle}
+                  titleStyle={{ fontFamily: "ProductSansBold" }}
+                  description={'Catégorie : ' + (item.product.category != undefined ? item.product.category.libelle : 'Panier') + ' | Livré : ' + (item.delivered_quantity || 0)}
+                  onPress={() => this._showModal(key)}
+                ></List.Item>
               )
             })}
           </ScrollView>
+          <Button labelStyle={{ color: "white" }} style={{ margin: 15 }} mode="contained" onPress={() => this.onComplete()} disabled={!this.state.booking.order.items.every(checkDeliveredQuantity)}>
+            Terminer la préparation
+          </Button>
         </View>
       );
     } else {
@@ -112,7 +119,10 @@ export class CommandeScreen extends Component<Props, any> {
           <Header title="Commande Screen"></Header>
           <ScrollView>
             <View style={{ flex: 1 }}>
-              <Text> Veuillez choisir une commande à traiter</Text>
+              <Text style={{ textAlign: "center" }}> Veuillez choisir une commande à traiter</Text>
+              <Button labelStyle={{ color: "white" }} style={{ margin: 15 }} mode="contained" onPress={() => this.setBooking()}>
+                Refresh
+          </Button>
             </View>
           </ScrollView>
         </>
@@ -120,6 +130,8 @@ export class CommandeScreen extends Component<Props, any> {
     }
   }
 }
+
+const checkDeliveredQuantity = (items) => items.delivered_quantity != null
 const commandeStyles = StyleSheet.create({
   card: {
     borderColor: 'transparent',
@@ -154,4 +166,9 @@ const commandeStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderColor: '#00d8a2'
   },
+  addToBagButton: {
+    width: 40,
+    height: 40,
+    textAlign: "center",
+  }
 })

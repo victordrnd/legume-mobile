@@ -28,10 +28,12 @@ class UserService {
     try {
       Service.token = await AsyncStorage.getItem("@token");
     } catch (error) {
+      console.log(error);
       this.purgeAuth();
       return false;
     }
     try {
+      this.http = Service.getInstance();
       const res = await this.http
         .get(`${environment.apiUrl}/auth/current`);
       if (res.status == 200) {
@@ -60,10 +62,12 @@ class UserService {
 
 
   async setAuth({ user, token }) {
-    Service.token = token;
+    if(token){
+      Service.token = token;
+      await AsyncStorage.setItem('@token', token);
+    }
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
-    await AsyncStorage.setItem('@token', token);
   
   }
 
@@ -80,6 +84,7 @@ class UserService {
 
   purgeAuth() {
     this.destroyToken();
+    AsyncStorage.removeItem('currentBookingProcessedId');
     this.currentUserSubject.next({});
     this.isAuthenticatedSubject.next(false);
   }

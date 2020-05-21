@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NavigationScreenProp, NavigationState } from 'react-navigation';
+import { NavigationScreenProp, NavigationState, NavigationEvents } from 'react-navigation';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, RefreshControl, Image } from 'react-native';
 import Header from '../components/Header';
 import NavigationService from "../core/services/NavigationService";
@@ -9,6 +9,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import theme from '../theme';
 import { Snackbar, Avatar, List, Badge } from 'react-native-paper';
 import moment from "moment";
+import AsyncStorage from '@react-native-community/async-storage';
 
 
 interface NavigationParams {
@@ -40,33 +41,35 @@ export class CommandesScreen extends Component<Props, any> {
   }
 
   async componentDidMount() {
-    const bookings = await BookingService.getBookings()
+    const bookings = await BookingService.getBookings();
     this.setState({ bookings: bookings });
   }
 
   _openBookingAlert(booking: Booking) {
-    Alert.alert('Commencer la commande',
-      `Voulez-vous débuter la gestion de la commande #${booking.id} ?`,
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel'
-        },
-        {
-          text: 'Oui',
-          onPress: () => {
-
-            BookingService.setCurrentBooking(booking).then((res) => {
-              console.info(res)
-              if (res.success)
-                NavigationService.navigate('Booking', {});
-              else
-                this.setState({ _snackBarMessage: res.message, _snackbarVisible: true })
-            })
+    if (!(booking.status.slug == 'prepared' || booking.status.slug == 'preparation')) {
+      Alert.alert('Commencer la commande',
+        `Voulez-vous débuter la gestion de la commande #${booking.id} ?`,
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel'
           },
-          style: 'default'
-        }
-      ])
+          {
+            text: 'Oui',
+            onPress: () => {
+
+              BookingService.setCurrentBooking(booking).then(async (res) => {
+                await AsyncStorage.setItem('currentBookingProcessedId', booking.id.toString());
+                NavigationService.navigate('Booking', {});
+              }).catch(err => {
+                console.log(JSON.stringify(err.response.data.error))
+                this.setState({ _snackBarMessage: err.response.data.error, _snackbarVisible: true })
+              })
+            },
+            style: 'default'
+          }
+        ])
+    }
   }
 
   async refreshList() {
@@ -79,8 +82,7 @@ export class CommandesScreen extends Component<Props, any> {
   render() {
     return (
       <>
-        {/* <Header title="Commandes"></Header> */}
-        <View style={{height: 80 }}>
+        <View style={{ height: 80 }}>
           <View style={{ flex: 1, flexDirection: "column", justifyContent: "space-between", }}>
             <View style={{ flex: 1, flexDirection: "row" }}>
               <View style={{ flex: 1 }}>
@@ -93,17 +95,21 @@ export class CommandesScreen extends Component<Props, any> {
             </View>
           </View>
         </View>
+        <NavigationEvents
+          onDidFocus={() => this.refreshList()}
+        />
         <ScrollView refreshControl={
           <RefreshControl refreshing={this.state.refreshing} onRefresh={() => { this.refreshList() }} />
         }
         >
           {this.state.bookings.map((book: Booking, key: number) => {
             return <List.Item
+              key={book.id}
               title={`Commande de ${book.user.firstname} ${book.user.lastname}`}
               titleStyle={{ fontFamily: "ProductSansBold" }}
               description={`Pour le ${moment(book.schedule).format("dddd D MMM à HH:mm")}`}
               descriptionStyle={{ fontFamily: "ProductSans" }}
-              left={props => <Avatar.Text size={35} labelStyle={{ color: "white", fontSize: 12 }} style={{ margin: 10, backgroundColor : getStatusColor(book) }} label="VD" />}
+              left={props => <Avatar.Text size={35} labelStyle={{ color: "white", fontSize: 12, fontFamily: "ProductSansBold" }} style={{ margin: 10, backgroundColor: getStatusColor(book) }} label={book.id.toString()} />}
               right={props => <Badge visible={true} style={{ margin: 30, backgroundColor: getStatusColor(book) }} size={10}></Badge>}
               onPress={() => this._openBookingAlert(book)}
             />
@@ -165,11 +171,7 @@ export class CommandesScreen extends Component<Props, any> {
       isPM: function (input) {
         return input.charAt(0) === 'M';
       },
-      // In case the meridiem units are not separated around 12, then implement
-      // this function (look at locale/id.js for an example).
-      // meridiemHour : function (hour, meridiem) {
-      //     return /* 0-23 hour, given meridiem token and hour 1-12 */ ;
-      // },
+
       meridiem: function (hours, minutes, isLower) {
         return hours < 12 ? 'PD' : 'MD';
       },
@@ -180,17 +182,6 @@ export class CommandesScreen extends Component<Props, any> {
     });
   }
 }
-const commandesStyles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    borderWidth: 0,
-    borderRadius: 5,
-    marginBottom: 0,
-    marginTop: 15,
-    marginLeft: 15,
-    marginRight: 15,
-  }
-})
 
 const getStatusColor = (book) => {
   switch (book.status.slug) {
@@ -201,7 +192,7 @@ const getStatusColor = (book) => {
       return "#b5b5b5"
       break;
     case 'prepared':
-      return "#a4ff16"
+      return "#87d068"
   }
 
 }

@@ -6,4 +6,5 @@ export default interface Product {
   unit_price: string;
   unit: string;
   category_id: number;
+  type:any;
 }
