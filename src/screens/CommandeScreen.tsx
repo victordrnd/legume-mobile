@@ -92,7 +92,7 @@ export class CommandeScreen extends Component<Props, any> {
           {/* <NavigationEvents
             onDidFocus={() => this.setBooking()}
           /> */}
-          <ScrollView>
+          <ScrollView style={{height:620}}>
 
             {this.state.booking.order.items.map((item: Item, key: number) => {
               return (
